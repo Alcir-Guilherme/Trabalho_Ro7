@@ -9,4 +9,5 @@ add_executable(Trabalho_Ro7
         Arvore.c
         Arvore.h
         HASH_PESSOAS.h
-        HASH_PESSOAS.c)
+        HASH_PESSOAS.c
+        Manipula.c)

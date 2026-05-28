@@ -6,7 +6,7 @@ ARVORE *TARVBM_cria(int t){
   ARVORE* novo = (ARVORE*)malloc(sizeof(ARVORE));
 
   novo->nchaves = 0;
-  novo->chaves =(CHAVE*)malloc(sizeof(CHAVE)*((t*2)-1));
+  novo->chaves = (CHAVE**)malloc(sizeof(CHAVE*)*((t*2)-1));
   for (int i= 0 ; i < ((t*2)-1);i++){
     novo->chaves[i] = NULL;
   }

@@ -7,7 +7,7 @@
 
 typedef struct pessoas {
     char nome[TAM_NOME_PESSOA];
-    char funcao[9];
     int data_nascimento;
+    char funcao[9];
 }PESSOA;
 #endif //TRABALHO_RO7_HASH_PESSOAS_H
