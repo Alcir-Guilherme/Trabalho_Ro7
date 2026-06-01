@@ -10,6 +10,8 @@
 #define TAM_NOME_FILME 200
 #define TAM_SUBTITULO_FILME 400
 #define TAM_NOME_PESSOA 100
+#define TAM_FUNCAO 9
+#define TAM_ROLE 100
 #define INDEX "Index.dat"
 
 typedef struct chaves {

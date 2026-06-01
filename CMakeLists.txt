@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 4.2)
+cmake_minimum_required(VERSION 4.1.2)
 project(Trabalho_Ro7 C)
 
 set(CMAKE_C_STANDARD 11)
@@ -10,4 +10,10 @@ add_executable(Trabalho_Ro7
         Arvore.h
         HASH_PESSOAS.h
         HASH_PESSOAS.c
-        Manipula.c)
+        Manipula.c
+        HASH_PESSOAS.h
+        HASH_PESSOAS.h
+        HASH_PESSOAS.h
+        Manipula.c
+        Filmes.c
+        Filmes.h)
