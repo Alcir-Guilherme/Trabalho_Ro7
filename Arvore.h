@@ -33,12 +33,11 @@ typedef struct arvore{
 }ARVORE;
 
 
-ARVORE *cria(int t);
-ARVORE *TARVBM_inicializa(void);
+void arvore_inicializa(char *index, char *dados,char *raiz);
 ARVORE *TARVBM_busca(ARVORE *no, char *filme);
-ARVORE *TARVBM_insere(ARVORE *T, int mat, int t);
-ARVORE* TARVBM_retira(ARVORE* arv, int k, int t);
-void TARVBM_libera(ARVORE *a,long offset_no);
-void TARVBM_imprime(ARVORE *a);
-void TARVBM_imprime_chaves(ARVORE *a);
+void arvore_insere(ARVORE *no, char *index, char *raiz, CHAVE *chave);
+ARVORE *arvore_retira(ARVORE* arv, int k, int t);
+void arvore_libera(ARVORE *a,long offset_no);
+void arvoreimprime(ARVORE *a);
+void arvore_imprime_chaves(ARVORE *a);
 #endif //TRABALHO_RO7_ARVORE_H
