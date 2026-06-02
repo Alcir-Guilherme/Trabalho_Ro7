@@ -14,6 +14,11 @@
 #define TAM_ROLE 100
 #define INDEX "Index.dat"
 
+typedef struct {
+    int t;
+    long offset_raiz;
+}CABECALHO;
+
 typedef struct chaves {
     char id_no[TAM_NOME_FILME];
     long offset_dados;

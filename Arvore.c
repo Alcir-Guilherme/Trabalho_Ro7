@@ -1,4 +1,6 @@
 #include "Arvore.h"
+#include "Filmes.h"
+#include "Filmes.c"
 
 
 ARVORE *cria(int t){
@@ -40,11 +42,40 @@ ARVORE *TARVBM_inicializa(void){
   return NULL;
 }
 
-void TARVBM_libera(ARVORE *a, long Offset_no){
+void TARVBM_libera(ARVORE *a, long offset_no){
   remove(INDEX);
 }
 
+long busca_no_aux(ARVORE *no,FILE *index, char *nome_filme,int t, long offset_no) {
+  if (offset_no == -1) return -1;
 
+  carrega_no(no,index,offset_no,t);
+  int i = 0;
+  while ((i < no->nchaves) && (strcmp(nome_filme,no->chaves[i].id_no) > 0)) i++;
+
+  if (no->eh_folha) {
+    if ((i < no->nchaves) && (strcmp(nome_filme,no->chaves[i].id_no) == 0)) {
+      return no->chaves[i].offset_dados;
+    }
+    printf("O filme não está na arvore.\n");
+    return -1;
+  }
+
+  return busca_no_aux(no,index,nome_filme,t,no->offset_filho[i]); // ver com luiz o que fazer nessa situacao
+}
+// fazer a funcao de carregar raiz
+void carregar_raiz(FILE *index,CABECALHO *cab) {
+  fseek(index,0,SEEK_SET);
+  fread(cab,sizeof(CABECALHO),1,index);
+}
+
+long busca_no(FILE *index, char *nome_filme,int t) {
+  ARVORE *novo = cria(t);
+  CABECALHO *raiz = (CABECALHO*)malloc(sizeof(CABECALHO));
+  carregar_raiz(index,raiz);
+  long resp = busca_no_aux(novo,index,nome_filme,t,raiz->offset_raiz);
+  return resp;
+}
 
 ARVORE *TARVBM_busca_aux( FILE* index,char *filme, long offset_no){
   ARVORE no_atual = carrega():
