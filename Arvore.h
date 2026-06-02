@@ -16,20 +16,21 @@
 
 typedef struct chaves {
     char id_no[TAM_NOME_FILME];
-    long offset;
+    long offset_dados;
 }CHAVE;
 
 typedef struct arvore{
-    int nchaves,folha;
-    CHAVE **chaves;
+    int nchaves;
+    int eh_folha;
+    CHAVE *chaves; //mudar para chaves*
     long *offset_filho;
     long offset_prox;
 }ARVORE;
 
 
-ARVORE *TARVBM_cria(int t);
+ARVORE *cria(int t);
 ARVORE *TARVBM_inicializa(void);
-ARVORE *TARVBM_busca(ARVORE *a, char *filme);
+ARVORE *TARVBM_busca(ARVORE *no, char *filme);
 ARVORE *TARVBM_insere(ARVORE *T, int mat, int t);
 ARVORE* TARVBM_retira(ARVORE* arv, int k, int t);
 void TARVBM_libera(ARVORE *a,long offset_no);

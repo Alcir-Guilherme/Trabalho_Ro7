@@ -1,21 +1,38 @@
 #include "Arvore.h"
 
 
-ARVORE *TARVBM_cria(int t){
+ARVORE *cria(int t){
 
   ARVORE* novo = (ARVORE*)malloc(sizeof(ARVORE));
 
   novo->nchaves = 0;
-  novo->chaves = (CHAVE**)malloc(sizeof(CHAVE*)*((t*2)-1));
-  for (int i= 0 ; i < ((t*2)-1);i++){
-    novo->chaves[i] = NULL;
-  }
-  novo->folha = 1;
+  novo->chaves = (CHAVE*)malloc(sizeof(CHAVE)*((t*2)-1));
+  memset(novo->chaves,0,sizeof(CHAVE)*((t*2)-1)); // seta as chaves para string vazia e offset 0
+  novo->eh_folha = 1;
   novo->offset_filho = (long*)malloc(sizeof(long)*t*2);
-  novo->offset_prox = -1;
   int i;
   for(i=0; i<(t*2); i++) novo->offset_filho[i] = -1;
+  novo->offset_prox = -1;
+
   return novo;
+}
+
+void *carrega_no(ARVORE *no,FILE *index,long offset_no, int t) {
+  fseek(index,offset_no,SEEK_CUR);
+  fread(&no->nchaves, sizeof(int), 1, index);
+  fread(&no->eh_folha,sizeof(int),1,index);
+  fread(no->chaves,sizeof(CHAVE),2*t-1,index);// isso ta certo?
+  fread(no->offset_filho,sizeof(long),2*t,index);
+  fread(&no->offset_prox,sizeof(long),1,index);
+}
+
+void salva_no(ARVORE *no, FILE *index, long offset_no,int t) {
+  fseek(index,offset_no,SEEK_CUR);
+  fwrite(&no->nchaves, sizeof(int), 1, index);
+  fwrite(&no->eh_folha,sizeof(int),1,index);
+  fwrite(no->chaves,sizeof(CHAVE),2*t-1,index);// isso ta certo?
+  fwrite(no->offset_filho,sizeof(long),2*t,index);
+  fwrite(&no->offset_prox,sizeof(long),1,index);
 }
 
 
@@ -26,11 +43,8 @@ ARVORE *TARVBM_inicializa(void){
 void TARVBM_libera(ARVORE *a, long Offset_no){
   remove(INDEX);
 }
-ARVORE *carrega(FILE index, int t,long offset_no) {
-  ARVORE *novo = TARVBM_cria(t);
-  fread(novo->nchaves, sizeof(int), 1, index);
-  fread(novo,sizeof(ARVORE),1,)
-}
+
+
 
 ARVORE *TARVBM_busca_aux( FILE* index,char *filme, long offset_no){
   ARVORE no_atual = carrega():
