@@ -1,46 +1,24 @@
 //
 // Created by alcir on 29/05/2026.
 //
+#include <string.h>
 #include <stdio.h>
 #include "Arvore.h"
+#include "Manipula.h"
 #include "HASH_PESSOAS.h"
 #include "HASH_PESSOAS.c"
 
-typedef struct {
-    char nome[TAM_NOME_PESSOA];
-    char funcao[TAM_FUNCAO];
-    char personagem[TAM_ROLE];
-    char filme[TAM_NOME_FILME];
-}RELACAO_TEMP;
 
-
-typedef struct {
-    char titulo[TAM_NOME_FILME];
-    int  ano;
-    char subtitulo[TAM_SUBTITULO_FILME];
-}FILME_TEMP;
-
-typedef struct {
-    char nome[TAM_NOME_PESSOA];
-    int  data_nascimento;
-} PESSOA_TEMP;
 
 // funcoes para ler no do arquivo arvore
 
 ARVORE *le_no(FILE* index,long offset_no,int t) {
     fseek(index,offset_no,SEEK_CUR);
-    ARVORE *aux = TARVBM_cria(t);
+    ARVORE *aux = cria(t);
     fread(&aux->nchaves,sizeof(int),1,index);
-    fread(&aux->folha,sizeof(int),1,index);
-    for (int i=0; i<aux->nchaves; i++) {
-        aux->chaves[i] = (CHAVE*)malloc(sizeof(CHAVE));
-        fread(&aux->chaves[i],sizeof(int),1,index);
-    }
-    aux->offset_filho =(long*)malloc(sizeof(long)*2*t);
-    for (int i=0; i<(2*t);i++) {
-        fread(&aux->offset_filho[i],sizeof(long),1,index);
-    }
-    fseek(index,((2*t-1)-aux->nchaves)*sizeof(CHAVE),SEEK_CUR);
+    fread(&aux->eh_folha,sizeof(int),1,index);
+    fread(aux->chaves,sizeof(CHAVE),(2*t)-1,index);
+    fread(aux->offset_filho,sizeof(long),1,index);
     fread(&aux->offset_prox,sizeof(long),1,index);
     return aux;
 }
@@ -48,16 +26,10 @@ ARVORE *le_no(FILE* index,long offset_no,int t) {
 void escreve_no(FILE *index,ARVORE *no,long offset_no,int t) { //escreve um no no arquivo de index
     fseek(index,offset_no,SEEK_SET);
     fwrite(&no->nchaves,sizeof(int),1,index);
-    fwrite(&no->folha,sizeof(int),1,index);
-    for (int i=0; i<no->nchaves;i++){
-        fwrite(no->chaves[i],sizeof(CHAVE),1,index);
-    }
-    char place_holder[sizeof(CHAVE)*((2*t-1)-no->nchaves)];
-    fwrite(place_holder,sizeof(CHAVE),1,index);
+    fwrite(&no->eh_folha,sizeof(int),1,index);
 
-    for (int i= 0;i<(2*t);i++) {
-        fwrite(&no->offset_filho[i],sizeof(long),1,index);
-    }
+    fwrite(no->chaves,sizeof(CHAVE),(2*t)-1,index);
+    fwrite(no->offset_filho,sizeof(CHAVE),2*t,index);
     fwrite(&no->offset_prox,sizeof(long),1,index);
 }
 

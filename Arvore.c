@@ -1,7 +1,16 @@
 #include "Arvore.h"
-#include "Filmes.h"
-#include "Filmes.c"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
+
+//----------------------------------------------------------------------------------------------------------
+void atualiza_cabecalho(FILE *raiz,CABECALHO *cab) {
+  fseek(raiz,0,SEEK_SET);
+  fwrite(cab,sizeof(CABECALHO),1,raiz);
+
+}
+//----------------------------------------------------------------------------------------------------------
 
 long fim_arquivo(FILE *arquivo) {
   fseek(arquivo,0,SEEK_END);
@@ -15,12 +24,16 @@ void libera_no(ARVORE *no) {
   free(no);
 }
 //----------------------------------------------------------------------------------------------------------
-void arvore_inicializa(char *index, char *dados,char *raiz) {
+void arvore_inicializa(char *index, char *dados,char *raiz,int t) {
   FILE *fp = fopen(index,"wb");
   if(!fp) exit(EXIT_FAILURE);
   fclose(fp);
 
   fp = fopen(raiz,"wb");
+  CABECALHO cab;
+  cab.offset_raiz = -1;
+  cab.t = t;
+  fwrite(&cab,sizeof(CABECALHO),1,fp);
   if(!fp) exit(EXIT_FAILURE);
   fclose(fp);
 
@@ -131,7 +144,7 @@ void insere_nao_completo(ARVORE *x, FILE* index,CHAVE *chave, long offset_x,int 
   ARVORE *filho = cria(t);
   carrega_no(filho,index,x->offset_filho[i],t);
   if (filho->nchaves == (2*t)-1){
-    divisao(x,index,i+1,filho);
+    //divisao(x,index,i+1,filho);
     if (strcmp(chave->id_no,x->chaves[i].id_no) > 0) i++;
 
     libera_no(filho);
@@ -189,8 +202,9 @@ void arvore_insere(ARVORE *no, char *index, char *raiz, CHAVE *chave) {
   if(novo->nchaves == (2*cab.t)-1) {
     ARVORE *S = cria(cab.t);
     S->eh_folha = 0;
-    S = divisao(S,1,novo,cab.t);
+    //S = divisao(S,1,novo,cab.t);
     long fim_arq =fim_arquivo((fp_index));
+    salva_no(S,fp_index,fim_arq,cab.t);
     insere_nao_completo(S,fp_index,chave,fim_arq,cab.t);
 
     fwrite(S,sizeof(ARVORE),1,fp_index); // escrevo S no arquivo

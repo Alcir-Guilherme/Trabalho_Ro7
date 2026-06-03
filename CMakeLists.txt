@@ -16,4 +16,6 @@ add_executable(Trabalho_Ro7
         HASH_PESSOAS.h
         Manipula.c
         Filmes.c
-        Filmes.h)
+        Filmes.h
+        main.c
+        Manipula.h)

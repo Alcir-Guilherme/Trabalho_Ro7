@@ -1,18 +1,12 @@
-//
-// Created by luiz-p on 25/05/2026.
-//
-
 #ifndef TRABALHO_RO7_ARVORE_H
 #define TRABALHO_RO7_ARVORE_H
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#define TAM_NOME_FILME 200
-#define TAM_SUBTITULO_FILME 400
-#define TAM_NOME_PESSOA 100
-#define TAM_FUNCAO 9
-#define TAM_ROLE 100
-#define INDEX "Index.dat"
+
+#define ARQ_INDEX "index.dat"
+#define ARQ_DADOS "dados.dat"
+#define ARQ_RAIZ "raiz.dat"
+#define TAM_NOME 100
+
+
 
 typedef struct {
     int t;
@@ -20,7 +14,7 @@ typedef struct {
 }CABECALHO;
 
 typedef struct chaves {
-    char id_no[TAM_NOME_FILME];
+    char id_no[TAM_NOME];
     long offset_dados;
 }CHAVE;
 
@@ -32,8 +26,8 @@ typedef struct arvore{
     long offset_prox;
 }ARVORE;
 
-
-void arvore_inicializa(char *index, char *dados,char *raiz);
+ARVORE *cria(int t);
+void arvore_inicializa(char *index, char *dados,char *raiz,int t);
 ARVORE *TARVBM_busca(ARVORE *no, char *filme);
 void arvore_insere(ARVORE *no, char *index, char *raiz, CHAVE *chave);
 ARVORE *arvore_retira(ARVORE* arv, int k, int t);
