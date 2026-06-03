@@ -27,7 +27,7 @@ typedef struct chaves {
 typedef struct arvore{
     int nchaves;
     int eh_folha;
-    CHAVE *chaves; //mudar para chaves*
+    CHAVE *chaves;
     long *offset_filho;
     long offset_prox;
 }ARVORE;
