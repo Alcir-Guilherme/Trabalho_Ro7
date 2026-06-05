@@ -4,21 +4,40 @@
 #include <string.h>
 #include <stdio.h>
 #include "Arvore.h"
-#include "Manipula.h"
 #include "HASH_PESSOAS.h"
 #include "HASH_PESSOAS.c"
+
+// para leitura do Nodes.txt
+typedef struct {
+    char titulo[TAM_NOME_FILME];
+    int  ano;
+    char subtitulo[TAM_SUBTITULO_FILME];
+} FILME_TEMP;
+
+typedef struct {
+    char nome[TAM_NOME_PESSOA];
+    int  data_nascimento;
+} PESSOA_TEMP;
+
+// para leitura do arquivo de relaçoes
+typedef struct {
+    char nome[TAM_NOME_PESSOA];
+    char funcao[20];
+    char filme[TAM_NOME_FILME];
+    char personagem[TAM_ROLE];
+} RELACAO_TEMP;
 
 
 
 // funcoes para ler no do arquivo arvore
 
 ARVORE *le_no(FILE* index,long offset_no,int t) {
-    fseek(index,offset_no,SEEK_CUR);
-    ARVORE *aux = cria(t);
+    fseek(index,offset_no,SEEK_SET);
+    ARVORE *aux = cria_no(t);
     fread(&aux->nchaves,sizeof(int),1,index);
     fread(&aux->eh_folha,sizeof(int),1,index);
     fread(aux->chaves,sizeof(CHAVE),(2*t)-1,index);
-    fread(aux->offset_filho,sizeof(long),1,index);
+    fread(aux->offset_filho,sizeof(long),2*t,index);
     fread(&aux->offset_prox,sizeof(long),1,index);
     return aux;
 }
@@ -100,7 +119,7 @@ void le_filme(char *linha,FILME_TEMP *filme){
 }
 
 void le_relacao(char *linha,RELACAO_TEMP *relacao) {
-    int lidos = sscanf(linha,"*%[^|] | %[^|] | %[^|] | *%[^|] | %[^|] | %[^\n]",relacao->nome,relacao->funcao,relacao->filme,relacao->personagem);
+    int lidos = sscanf(linha,"START Person | %[^|] | %[^|] | END Movie | %[^|] | %[^\n]",relacao->nome,relacao->funcao,relacao->filme,relacao->personagem);
     if (lidos < 4 ) {
         relacao->personagem[0] = '\0';
     }
