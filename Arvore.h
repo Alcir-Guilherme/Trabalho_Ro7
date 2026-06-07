@@ -40,6 +40,7 @@ ARVORE *arvore_retira(ARVORE* arv, int k, int t);
 void inicializa_arquivos(char *index, char *dados, char *raiz, int t);
 void arvore_inicializa(char *index, char *dados,char *raiz,int t);
 void arvore_insere(char *index, char *raiz, CHAVE *chave);
+void arvore_remover(char *index, char *raiz, char *nome)
 void arvore_libera(ARVORE *a,long offset_no);
 void arvore_imprime_chaves(ARVORE *a);
 void carrega_raiz(FILE *raiz,CABECALHO *cab);

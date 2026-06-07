@@ -20,7 +20,7 @@ void inicializa_arquivos(char *index, char *dados, char *raiz, int t) {
   fclose(fp);
 }
 //----------------------------------------------------------------------------------------------------------
-void atualiza_cabecalho(FILE *raiz,CABECALHO *cab) {
+void atualiza_raiz(FILE *raiz,CABECALHO *cab) {
   fseek(raiz,0,SEEK_SET);
   fwrite(cab,sizeof(CABECALHO),1,raiz);
 
@@ -113,27 +113,25 @@ void carrega_raiz(FILE *raiz,CABECALHO *cab) {
 }
 
 //----------------------------------------------------------------------------------------------------------
-long busca_no_aux(ARVORE *no,FILE *index, char *nome_filme,int t, long offset_no) {
+long busca_no_aux(ARVORE *no,FILE *index, char *nome,int t, long offset_no) {
   if (offset_no == -1) return -1;
 
   carrega_no(no,index,offset_no,t);
   int i = 0;
-  while ((i < no->nchaves) && (strcmp(nome_filme,no->chaves[i].id_no) > 0)) i++;
+  while ((i < no->nchaves) && (strcmp(nome,no->chaves[i].id_no) > 0)) i++;
 
   if (no->eh_folha) {
-    if ((i < no->nchaves) && (strcmp(nome_filme,no->chaves[i].id_no) == 0)) {
+    if ((i < no->nchaves) && (strcmp(nome,no->chaves[i].id_no) == 0)) {
       return no->chaves[i].offset_dados;
     }
     printf("O filme não está na arvore.\n");
     return -1;
   }
 
-  return busca_no_aux(no,index,nome_filme,t,no->offset_filho[i]); // ver com luiz o que fazer nessa situacao
+  return busca_no_aux(no,index,nome,t,no->offset_filho[i]); // ver com luiz o que fazer nessa situacao
 }
 //---------------------------------------------------------------------------------------------------------
 long busca_no(FILE *fp_index,CABECALHO *cab, char *nome) {
-
-
   ARVORE *novo = cria_no(cab->t);
   long resp = busca_no_aux(novo,fp_index,nome,cab->t,cab->offset_raiz);
   libera_no(novo);
@@ -176,7 +174,7 @@ void insere_nao_completo(ARVORE *x, FILE* index,CHAVE *chave, long offset_x,int 
 
 //----------------------------------------------------------------------------------------------------------
 void arvore_insere(char *index, char *raiz, CHAVE *chave) {
-  FILE *fp_raiz = fopen(index,"rb+");
+  FILE *fp_raiz = fopen(raiz,"rb+");
   if(!fp_raiz) {exit(EXIT_FAILURE);}
 
   FILE *fp_index = fopen(index,"rb+");
@@ -196,34 +194,35 @@ void arvore_insere(char *index, char *raiz, CHAVE *chave) {
     return;
   }
 
+
   if(cab.offset_raiz == -1) {
     memcpy(&(T->chaves[0]),chave,sizeof(CHAVE));
     T->nchaves =1;
     long offset_final = fim_arquivo(fp_index);
     salva_no(T,fp_index,offset_final,cab.t);
     cab.offset_raiz = offset_final;
-    atualiza_cabecalho(fp_raiz,&cab);
+    atualiza_raiz(fp_raiz,&cab);
     fclose(fp_index);
     fclose(fp_raiz);
     libera_no(T);
     return;
   }
 
+  carrega_no(T,fp_index,cab.offset_raiz,cab.t);
 
   if(T->nchaves == (2*cab.t)-1) {
     ARVORE *S = cria_no(cab.t);
     S->eh_folha = 0;
-    arvore_divisao(T,1,S,fp_index,cab.t);
+    S->offset_filho[0] = cab.offset_raiz;
+    arvore_divisao(S,1,T,fp_index,cab.t);
     long fim_arq =fim_arquivo((fp_index));
     salva_no(S,fp_index,fim_arq,cab.t);
     salva_no(T,fp_index,cab.offset_raiz,cab.t);
     cab.offset_raiz = fim_arq;
-    atualiza_cabecalho(fp_raiz,&cab);
+    atualiza_raiz(fp_raiz,&cab);
     insere_nao_completo(S,fp_index,chave,fim_arq,cab.t);
-
-    fwrite(S,sizeof(ARVORE),1,fp_index); // escrevo S no arquivo
     cab.offset_raiz = fim_arq; // altero o offset da raiz ja que inseri o S no final
-    fwrite(&cab,sizeof(CABECALHO),1,fp_raiz);
+    atualiza_raiz(fp_raiz,&cab);
     libera_no(S);
     libera_no(T);
     fclose(fp_raiz);
@@ -231,8 +230,8 @@ void arvore_insere(char *index, char *raiz, CHAVE *chave) {
     return;
   }
 
-  fseek(fp_index,0,SEEK_END);
-  fwrite(chave,sizeof(CHAVE),1,fp_index);
+  insere_nao_completo(T,fp_index,chave,cab.offset_raiz,cab.t);
+
   libera_no(T);
   fclose(fp_index);
   fclose(fp_raiz);
@@ -282,7 +281,7 @@ void imp(long offset,FILE *index, int t, int andar){
     for(i=a->nchaves-1; i >= 0; i--){
       for(j=0; j<=andar; j++) printf("\t");
       printf("%s\n", a->chaves[i].id_no);
-      imp(a->offset_filho[i],index,andar+1,t);
+      imp(a->offset_filho[i],index,t,andar+1);
     }
     libera_no(a);
   }
@@ -297,9 +296,52 @@ void arvore_imprime(char* index,char* raiz){
   carrega_raiz(fp_raiz,&cab);
   imp(cab.offset_raiz,fp_index,cab.t,0);
   fclose(fp_raiz);
-
 }
+void arvore_remover(char *index, char *raiz, char *nome) {
+  FILE *fp_raiz = fopen(raiz,"rb");
+  if(!fp_raiz){ exit(EXIT_FAILURE);}
 
+  FILE* fp_index = fopen(index,"rb+");
+  if(!fp_index){ exit(EXIT_FAILURE);}
+
+  CABECALHO cab;
+  carrega_raiz(fp_raiz,&cab);
+  ARVORE *arv = cria_no(cab.t);
+  carrega_no(arv,fp_index,cab.offset_raiz,cab.t);
+  while (arv->eh_folha == 0) {
+    int i =0;
+    while (i < arv->nchaves && strcmp(nome, arv->chaves[i].id_no) > 0 )i++;
+    long prox = arv->offset_filho[i];
+    libera_no(arv);
+    arv = cria_no(cab.t);
+    carrega_no(arv, fp_index, prox, cab.t);
+  }
+  int i;
+  for (i = 0; i < arv->nchaves && (strcmp(arv->chaves[i].id_no,nome) < 0); i++);
+  if ((i < arv->nchaves) && (strcmp(nome,arv->chaves[i].id_no) == 0) && (arv->eh_folha)) { //C1
+    printf("CASO 1");
+    int j;
+    for (j=i; j<arv->nchaves-1; j++) {
+      memcpy(&arv->chaves[j],&arv->chaves[j+1],sizeof(CHAVE));
+    }
+    arv->nchaves --;
+    salva_no(arv, fp_index, cab.offset_raiz, cab.t);
+
+    libera_no(arv);
+    fclose(fp_index);
+    fclose(fp_raiz);
+    }
+
+
+    //   if(!arv) return arv;
+    //   int i;
+    //   for(i = 0; i < arv->nchaves && arv->chave[i] < ch; i++);
+    //   if((i < arv->nchaves) && (ch == arv->chave[i]) && (arv->folha)){ //CASO 1
+    //     printf("\nCASO 1\n");
+    //     int j;
+    //     for(j=i; j<arv->nchaves-1;j++) arv->chave[j] = arv->chave[j+1];
+    //     arv->nchaves--;
+  }
 
 
 
@@ -593,4 +635,3 @@ void arvore_imprime(char* index,char* raiz){
 //   if(!arv || !TARVBM_busca(arv, k)) return arv;
 //   return remover(arv, k, t);
 // }
-
