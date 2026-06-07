@@ -331,7 +331,7 @@ void arvore_remover(char *index, char *raiz, char *nome) {
     fclose(fp_index);
     fclose(fp_raiz);
     }
-
+    // aqui vou por o caso 3
 
     //   if(!arv) return arv;
     //   int i;
